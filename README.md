@@ -1,5 +1,14 @@
 # site-jump
 
+## Demo
+[gugu.ge/{urlencode}](https://gugu.ge)
+
+[跳转到github: ](https://gugu.ge/https%3A%2F%2Fgithub.com)
+```
+https://gugu.ge/https%3A%2F%2Fgithub.com
+```
+
+
 ## Usage
 ```
 Usage: target\debug\site-jump.exe --www <www> [-s] [--route <route>] [-a <bind>] [-p <port>] [-q] [-l] [--no-redirect] [--ssl-key <ssl-key>] [--ssl-cert <ssl-cert>]
@@ -27,7 +36,7 @@ site-jump --www "examples/www" -s --route "/{target}" -a 0.0.0.0 -p 7070 -l
 ```
 html文件目录在"/home/me/www"，并启用静态文件服务"/home/me/www/static"。
 
-路径为http://127.0.0.0:7070/http%3a%2f%2fgoogle.com。
+路径为http://127.0.0.0:7070/http%3a%2f%2fgoogle.com
 
 并将日志记录到site-jump.log文件里。
 
