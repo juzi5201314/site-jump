@@ -12,12 +12,13 @@ use crate::args::Args;
 use fern::colors::{ColoredLevelConfig};
 
 use colored::{Colorize, Color};
+use actix_web::error::ErrorInternalServerError;
 
 mod args;
 
 #[actix_web::main]
 async fn main() -> Result<()> {
-    let args: &Args = &argh::from_env();
+    let args: Args = argh::from_env();
 
     if !args.quiet {
         init_log(args.log_to_file)?;
@@ -34,12 +35,14 @@ async fn main() -> Result<()> {
 
     HttpServer::new(move || {
         let mut app = App::new()
+            .route("/", web::get().to(index))
             .route(&route.clone(), web::get().to(handle))
             .data({
                 let mut tera = Tera::new(&temp_dir.clone().add("/*.html")).expect("初始化Tera失败");
                 tera.autoescape_on(Vec::new());
                 tera
-            });
+            })
+            .data(args.clone());
 
         if use_static_file {
             app = app.service(actix_files::Files::new("/static", &temp_dir.clone().add("/static")))
@@ -53,27 +56,42 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
+fn index(tera: web::Data<Tera>, args: web::Data<Args>) -> HttpResponse {
+    let mut context = Context::new();
+    context.insert("args", args.get_ref());
+
+    let html = tera.render("index.html", &context).map_err(|err| ErrorInternalServerError(err));
+    match html {
+        Ok(html) => HttpResponse::Ok().content_type("text/html").body(html),
+        Err(err) => {
+            error!("渲染index模板时出现错误: {}", err.to_string());
+            err.into()
+        }
+    }
+}
+
 #[derive(Deserialize)]
 struct QueryS {
     pub target: Option<String>
 }
 
-fn handle(req: HttpRequest, tera: web::Data<Tera>, query: web::Query<QueryS>) -> HttpResponse {
+fn handle(req: HttpRequest, tera: web::Data<Tera>, args: web::Data<Args>, query: web::Query<QueryS>) -> HttpResponse {
     let target = req.match_info().get("target").map(|s| s.to_owned()).or(query.target.clone());
 
     let context_target = &urldecode(target.as_ref().unwrap_or(&"null".to_owned()));
     let mut context = Context::new();
     context.insert("legal", &url::Url::parse(context_target).is_ok());
     context.insert("target", context_target);
+    context.insert("args", args.get_ref());
 
-    let html = tera.render("index.html", &context);
+    let html = tera.render("jump.html", &context);
     match html {
         Ok(html) => {
             target.map(|target| info!("go to {}", target));
             HttpResponse::Ok().content_type("text/html").body(html)
         },
         Err(err) => {
-            error!("渲染模板时出现错误: {}", err.to_string());
+            error!("渲染jump模板时出现错误: {}", err.to_string());
             HttpResponse::InternalServerError().body(err.to_string())
         }
     }

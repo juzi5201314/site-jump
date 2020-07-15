@@ -1,7 +1,7 @@
-
 use argh::FromArgs;
+use serde::{Serialize, Deserialize};
 
-#[derive(FromArgs, Debug, Clone)]
+#[derive(FromArgs, Debug, Clone, Serialize, Deserialize)]
 /// 简单的网页跳转服务
 pub struct Args {
     /// html文件目录。默认读取index.html作为主页
