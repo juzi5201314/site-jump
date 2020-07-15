@@ -4,7 +4,7 @@ use serde::{Serialize, Deserialize};
 #[derive(FromArgs, Debug, Clone, Serialize, Deserialize)]
 /// 简单的网页跳转服务
 pub struct Args {
-    /// html文件目录。默认读取index.html作为主页
+    /// html文件目录。默认读取index.html作为主页，jump.html作为跳转页面
     #[argh(option)]
     pub www: String,
 
