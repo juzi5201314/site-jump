@@ -31,6 +31,8 @@ async fn main() -> Result<()> {
     let use_static_file = args.static_file;
     let route = args.route.clone();
 
+    // 克隆一份参数到actix web里
+    let args_c = args.clone();
     let mut server = HttpServer::new(move || {
         let mut app = App::new()
             .route("/", web::get().to(index))
@@ -40,7 +42,7 @@ async fn main() -> Result<()> {
                 tera.autoescape_on(Vec::new());
                 tera
             })
-            .data(args.clone());
+            .data(args_c.clone());
 
         if use_static_file {
             app = app.service(actix_files::Files::new("/static", &temp_dir.clone().add("/static")))
@@ -50,11 +52,12 @@ async fn main() -> Result<()> {
     });
 
     // 使用https
-    if args.ssl_key.and(args.ssl_cert) {
+    if args.ssl_key.as_ref().and(args.ssl_cert.clone()).is_some() {
         let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls())?;
-        builder.set_private_key_file(&args.ssl_key, SslFiletype::PEM)?;
-        builder.set_certificate_chain_file(&args.ssl_cert)?;
+        builder.set_private_key_file(&args.ssl_key.unwrap(), SslFiletype::PEM)?;
+        builder.set_certificate_chain_file(&args.ssl_cert.unwrap())?;
         server = server.bind_openssl(&addr, builder)?;
+        info!("Listen on https://{}", addr);
     } else {
         server = server.bind(&addr)?;
         info!("Listen on http://{}", addr);
