@@ -2,7 +2,7 @@
 
 ## Usage
 ```
-Usage: site-jump --www <www> [-s] [--route <route>] [-a <bind>] [-p <port>] [-q] [-l]
+Usage: target\debug\site-jump.exe --www <www> [-s] [--route <route>] [-a <bind>] [-p <port>] [-q] [-l] [--no-redirect] [--ssl-key <ssl-key>] [--ssl-cert <ssl-cert>]
 
 简单的网页跳转服务
 
@@ -14,6 +14,9 @@ Options:
   -p, --port        监听端口
   -q, --quiet       安静模式，不输出日志
   -l, --log-to-file 记录日志到文件，而不是只输出到控制台
+  --no-redirect     `不`将http重定向到https并监听80端口。
+  --ssl-key         ssl私匙文件
+  --ssl-cert        ssl证书链文件
   --help            display usage information
 
 ```
@@ -27,6 +30,12 @@ html文件目录在"/home/me/www"，并启用静态文件服务"/home/me/www/sta
 路径为http://127.0.0.0:7070/http%3a%2f%2fgoogle.com。
 
 并将日志记录到site-jump.log文件里。
+
+---
+##### 使用https
+```
+site-jump --www "/home/me/www" -s -p 443 --ssl-key "path/to/key.pem" --ssl-cert "path/to/chain.pem"
+```
 
 ## Build
 #### Required
