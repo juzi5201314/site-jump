@@ -5,14 +5,15 @@ use std::ops::Add;
 
 use actix_web::{App, HttpRequest, HttpResponse, HttpServer, web};
 use actix_web::error::ErrorInternalServerError;
+use actix_web_middleware_redirect_scheme::RedirectSchemeBuilder;
 use anyhow::Result;
 use colored::{Color, Colorize};
 use fern::colors::ColoredLevelConfig;
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use serde::Deserialize;
 use tera::{Context, Tera};
 
 use crate::args::Args;
-use openssl::ssl::{SslAcceptor, SslMethod, SslFiletype};
 
 mod args;
 
@@ -30,11 +31,14 @@ async fn main() -> Result<()> {
     let temp_dir = args.www.clone();
     let use_static_file = args.static_file;
     let route = args.route.clone();
+    let use_tsl = args.ssl_key.as_ref().and(args.ssl_cert.clone()).is_some();
+    let no_redirect = args.no_redirect;
 
     // 克隆一份参数到actix web里
     let args_c = args.clone();
     let mut server = HttpServer::new(move || {
         let mut app = App::new()
+            .wrap(RedirectSchemeBuilder::new().enable(!no_redirect && use_tsl).build())
             .route("/", web::get().to(index))
             .route(&route.clone(), web::get().to(handle))
             .data({
@@ -52,10 +56,13 @@ async fn main() -> Result<()> {
     });
 
     // 使用https
-    if args.ssl_key.as_ref().and(args.ssl_cert.clone()).is_some() {
+    if use_tsl {
         let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls())?;
         builder.set_private_key_file(&args.ssl_key.unwrap(), SslFiletype::PEM)?;
         builder.set_certificate_chain_file(&args.ssl_cert.unwrap())?;
+        if !no_redirect {
+            server = server.bind(format!("{}:80", &args.bind))?;
+        }
         server = server.bind_openssl(&addr, builder)?;
         info!("Listen on https://{}", addr);
     } else {

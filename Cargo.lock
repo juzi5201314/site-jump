@@ -290,6 +290,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "actix-web-middleware-redirect-scheme"
+version = "2.3.4-beta"
+source = "git+https://github.com/juzi5201314/actix-web-middleware-redirect-scheme#fb351a030041fe2e62d60a457f039af703364d84"
+dependencies = [
+ "actix-service",
+ "actix-web",
+ "futures",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1724,6 +1734,7 @@ version = "0.1.0"
 dependencies = [
  "actix-files",
  "actix-web",
+ "actix-web-middleware-redirect-scheme",
  "anyhow",
  "argh",
  "chrono",

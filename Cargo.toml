@@ -15,6 +15,7 @@ log = "0.4.8"
 chrono = "0.4.13"
 url = "2.1.1"
 colored = "2.0.0"
+actix-web-middleware-redirect-scheme = { git = "https://github.com/juzi5201314/actix-web-middleware-redirect-scheme" }
 
 [dependencies.actix-web]
 version = "3.0.0-beta.1"

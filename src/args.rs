@@ -32,6 +32,10 @@ pub struct Args {
     #[argh(switch, short = 'l')]
     pub log_to_file: bool,
 
+    /// `不`将http重定向到https并监听80端口。
+    #[argh(switch)]
+    pub no_redirect: bool,
+
     /// ssl私匙文件
     #[argh(option)]
     pub ssl_key: Option<String>,
