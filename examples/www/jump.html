@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <link rel="Shortcut Icon" href="static/gu.jpeg" />
+    <meta charset="UTF-8">
+    <title>咕咕鸽</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>
+        .main {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+<div class="main">
+    {% if legal %}
+        <h1>
+            Go to {{ target }}
+        </h1>
+        <h6 id="tips">
+            在咕了在咕了 (小声BB
+        </h6>
+        <h2> + <span id="timer">0</span> s </h2>
+    {% else %}
+        <h1>
+           "{{ target }}" 不是合法的url
+        </h1>
+    {% endif %}
+
+    <img src="static/gu.jpeg" alt="gugugu" />
+</div>
+
+<script>
+    let time = 0;
+
+    const TIMEOUT_TIPS = [
+        "鸽子已经飞走了..",
+        "我可能来不了了",
+        "恭喜你，你被鸽了",
+        "咕咕咕?...咕~"
+    ];
+
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+    }
+
+    function start() {
+        if ("{% if legal %}ok{% endif %}" !== "ok") {
+            return;
+        }
+        setInterval(function () {
+            time += 1;
+            let timer = document.getElementById("timer");
+            timer.innerText = time;
+
+            if (time % 5 === 0) {
+                document.getElementById("tips").innerText = TIMEOUT_TIPS[getRandomInt(TIMEOUT_TIPS.length)];
+            }
+        }, 1000);
+
+        window.location.href = "{{ target }}";
+    }
+
+    start()
+
+</script>
+</body>
+</html>

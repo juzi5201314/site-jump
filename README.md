@@ -23,7 +23,7 @@ Options:
 
 ## Examples
 ```
-site-jump --www "/home/me/www" -s --route "/{target}" -a 0.0.0.0 -p 7070 -l
+site-jump --www "examples/www" -s --route "/{target}" -a 0.0.0.0 -p 7070 -l
 ```
 html文件目录在"/home/me/www"，并启用静态文件服务"/home/me/www/static"。
 
@@ -34,7 +34,7 @@ html文件目录在"/home/me/www"，并启用静态文件服务"/home/me/www/sta
 ---
 ##### 使用https
 ```
-site-jump --www "/home/me/www" -s -p 443 --ssl-key "path/to/key.pem" --ssl-cert "path/to/chain.pem"
+site-jump --www "examples/www" -s -p 443 --ssl-key "path/to/key.pem" --ssl-cert "path/to/chain.pem"
 ```
 
 ## Build
