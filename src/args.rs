@@ -30,5 +30,13 @@ pub struct Args {
 
     /// 记录日志到文件，而不是只输出到控制台
     #[argh(switch, short = 'l')]
-    pub log_to_file: bool
+    pub log_to_file: bool,
+
+    /// ssl私匙文件
+    #[argh(option)]
+    pub ssl_key: Option<String>,
+
+    /// ssl证书链文件
+    #[argh(option)]
+    pub ssl_cert: Option<String>
 }

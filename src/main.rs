@@ -4,15 +4,15 @@ extern crate log;
 use std::ops::Add;
 
 use actix_web::{App, HttpRequest, HttpResponse, HttpServer, web};
+use actix_web::error::ErrorInternalServerError;
 use anyhow::Result;
-use tera::{Context, Tera};
+use colored::{Color, Colorize};
+use fern::colors::ColoredLevelConfig;
 use serde::Deserialize;
+use tera::{Context, Tera};
 
 use crate::args::Args;
-use fern::colors::{ColoredLevelConfig};
-
-use colored::{Colorize, Color};
-use actix_web::error::ErrorInternalServerError;
+use openssl::ssl::{SslAcceptor, SslMethod, SslFiletype};
 
 mod args;
 
@@ -31,9 +31,7 @@ async fn main() -> Result<()> {
     let use_static_file = args.static_file;
     let route = args.route.clone();
 
-    info!("Listen on {}", addr);
-
-    HttpServer::new(move || {
+    let mut server = HttpServer::new(move || {
         let mut app = App::new()
             .route("/", web::get().to(index))
             .route(&route.clone(), web::get().to(handle))
@@ -49,10 +47,20 @@ async fn main() -> Result<()> {
         }
 
         app
-    })
-        .bind(&addr)?
-        .run()
-        .await?;
+    });
+
+    // 使用https
+    if args.ssl_key.and(args.ssl_cert) {
+        let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls())?;
+        builder.set_private_key_file(&args.ssl_key, SslFiletype::PEM)?;
+        builder.set_certificate_chain_file(&args.ssl_cert)?;
+        server = server.bind_openssl(&addr, builder)?;
+    } else {
+        server = server.bind(&addr)?;
+        info!("Listen on http://{}", addr);
+    }
+
+    server.run().await?;
     Ok(())
 }
 
